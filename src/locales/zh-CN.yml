@@ -1,0 +1,31 @@
+commands:
+  wakatime:
+    description: "Wakatime 功能"
+  wakatime.auth:
+    description: "授权 Koishi 访问你的 Wakatime 账户。"
+    messages:
+      visit-link: "访问以下链接以授权 Koishi 访问你的 Wakatime 账户。"
+  wakatime.auth.revoke:
+    description: "撤销 Wakatime 授权。"
+    messages:
+      ok: "授权已撤销。"
+  wakatime.auth.check:
+    description: "查看 Wakatime 授权状态。"
+    messages:
+      ok: "已授权：{username || '匿名'}"
+      expires-at: "有效期至：{date}"
+  wakatime.stats:
+    description: "获取 Wakatime 统计数据。"
+    messages:
+      title: "{username || '匿名'} 的 Wakatime 统计：（时间：{human_readable_range}）" # TODO: Translate range
+      total: "总时长：{human_readable_total_including_other_language}"
+
+wakatime:
+  error:
+    not-authorized: "未授权。（使用 `wakatime.auth` 以授权）"
+    authorization-expired: "授权已过期。"
+    network-error: "{action}时发生网络错误：{message}"
+  action:
+    getting-stats: "获取统计数据"
+    revoking-authorization: "撤销授权"
+    fetching-user-data: "拉取用户数据"

@@ -1,0 +1,31 @@
+commands:
+  wakatime:
+    description: "Wakatime functions"
+  wakatime.auth:
+    description: "Authorize Koishi to access your Wakatime account."
+    messages:
+      visit-link: "Visit the following link to authorize Koishi to access your Wakatime account."
+  wakatime.auth.revoke:
+    description: "Revoke your Wakatime authorization."
+    messages:
+      ok: "Authorization revoked."
+  wakatime.auth.check:
+    description: "Check your Wakatime authorization state."
+    messages:
+      ok: "Authorized: {username || 'Anonymous''}"
+      expires-at: "Expires at: {date}"
+  wakatime.stats:
+    description: "Get your Wakatime stats."
+    messages:
+      title: "{username || 'Anonymous'}'s Wakatime stats {human_readable_range} is:"
+      total: "Total time: {human_readable_total_including_other_language}"
+
+wakatime:
+  error:
+    not-authorized: "Not authorized. (Use `wakatime.auth` to authorize)"
+    authorization-expired: "Authorization expired."
+    network-error: "Network error when {action}: {message}"
+  action:
+    getting-stats: "getting stats"
+    revoking-authorization: "revoking authorization"
+    fetching-user-data: "Fetching user data"
