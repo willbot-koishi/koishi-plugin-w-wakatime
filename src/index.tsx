@@ -1,15 +1,21 @@
-import { Context, HTTP, Session, SessionError, omit, pick, z } from 'koishi'
+import { Context, pick, z } from 'koishi'
 import {} from '@koishijs/plugin-server'
-import { AuthAction, AuthState, useCheckAuth, extendModels, createAuthAction } from './auth/model'
+import {} from 'koishi-plugin-w-echarts'
+
+import { AuthAction, useCheckAuth, extendModels, createAuthAction } from './auth/model'
 import { OAuth } from './network/oauth'
 import { Api } from './network/api'
 import { setupAuthCallback } from './network/authCallback'
-import { stringifyJson } from './utils'
 import { catchNetworkError } from './network/utils'
+import { useWithECharts, stringifyJson } from './utils'
+import { PIE_CHART_KEYS, useRenderPieChart } from './chart/pie'
 
 export const name = 'w-wakatime'
 
-export const inject = [ 'server', 'http', 'database' ]
+export const inject = {
+    required: [ 'server', 'http', 'database' ],
+    optional: [ 'echarts' ]
+}
 
 export interface Config {
     appId: string
@@ -35,17 +41,28 @@ export function apply(ctx: Context, config: Config) {
 
     const checkAuth = useCheckAuth(ctx)
     const fetchUserData = Api.useFetchUserData(ctx)
+    const withECharts = useWithECharts(ctx)
+    const renderPieChart = useRenderPieChart(ctx)
 
     ctx.command('wakatime')
 
     ctx.command('wakatime.auth')
         .action(async ({ session }) => {
+            if (! session.isDirect) return session.text('.must-be-direct')
 
             const { id: kid } = await session.observeUser([ 'id' ])
 
+            const [ state ] = await ctx.database.get('w-wakatime-auth-state', kid)
+            if (state) return session.text('.already-authorized', { username: state.user.username })
+
             const authAction = await (async (): Promise<AuthAction> => {
                 const [ action ] = await ctx.database.get('w-wakatime-auth-action', kid)
-                if (action) return action
+                if (action) {
+                    if (action.expiresAt < Date.now())
+                        await ctx.database.remove('w-wakatime-auth-action', kid)
+                    else
+                        return action
+                }
                 return await ctx.database.create('w-wakatime-auth-action', createAuthAction(kid))
             })()
 
@@ -59,7 +76,8 @@ export function apply(ctx: Context, config: Config) {
 
             return <>
                 {session.text('.visit-link')}<br />
-                {authorizeUrl}
+                {authorizeUrl}<br />
+                {session.text('.expires-at', { minutes: (authAction.expiresAt - Date.now()) / (60 * 1000) | 0 })}
             </>
         })
     
@@ -95,7 +113,8 @@ export function apply(ctx: Context, config: Config) {
 
     ctx.command('wakatime.stats')
         .option('range', '-r <range:string>', { fallback: 'last_7_days' })
-        .action(async ({ session, options: { range } }) => {
+        .option('graph', '-g')
+        .action(async ({ session, options: { range, graph: enableGraph } }) => {
             const state = await checkAuth(session)
 
             const { data: { data: statsData } } = await ctx
@@ -105,9 +124,18 @@ export function apply(ctx: Context, config: Config) {
                 })
                 .catch(catchNetworkError(session.text('wakatime.action.getting-stats')))
 
+            const graph = await withECharts(enableGraph, async () => {
+                const [ c1, c2, c3, c4 ] = await Promise.all(
+                    PIE_CHART_KEYS.map(key => renderPieChart(session, statsData, key))
+                )
+
+                return <>{c1}{c2}{c3}{c4}</>
+            })
+
             return <>
                 {session.text('.title', pick(statsData, [ 'username', 'human_readable_range' ]))}<br />
                 {session.text('.total', pick(statsData, [ 'human_readable_total_including_other_language' ]))}<br />
+                {graph}
             </>
         })
 }

@@ -60,7 +60,6 @@ export const setupAuthCallback = (ctx: Context, config: Config) => {
             const tokenData = Object.fromEntries(tokenForm.entries()) as OAuth.TokenData
 
             if ('error' in tokenData) {
-                ctx.logger.error('Token error: %o', tokenData)
                 throw new AuthError(400, tokenData.error_description)
             }
             
@@ -85,7 +84,7 @@ export const setupAuthCallback = (ctx: Context, config: Config) => {
                 return
             }
 
-            ctx.logger.error('Internal error: %o', err)
+            ctx.logger.error('Internal error in auth callback:\n%o', err)
             ktx.status = 500
             ktx.body = createCallbackPage('Internal Server Error')
         }

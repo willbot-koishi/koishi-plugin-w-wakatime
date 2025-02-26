@@ -4,7 +4,10 @@ commands:
   wakatime.auth:
     description: "授权 Koishi 访问你的 Wakatime 账户。"
     messages:
+      must-be-direct: "为了安全起见，请在私聊中使用此命令。"
+      already-authorized: "已授权：{username || '匿名'}<br />若要重新授权，请先使用 `wakatime.auth.revoke` 撤销授权。"
       visit-link: "访问以下链接以授权 Koishi 访问你的 Wakatime 账户。"
+      expires-at: "链接将在 {minutes} 后失效。"
   wakatime.auth.revoke:
     description: "撤销 Wakatime 授权。"
     messages:
@@ -25,7 +28,15 @@ wakatime:
     not-authorized: "未授权。（使用 `wakatime.auth` 以授权）"
     authorization-expired: "授权已过期。"
     network-error: "{action}时发生网络错误：{message}"
+    no-echarts: "未启用 ECharts，无法使用图表功能。"
+
   action:
     getting-stats: "获取统计数据"
     revoking-authorization: "撤销授权"
     fetching-user-data: "拉取用户数据"
+
+  chart:
+    languages: "编程语言"
+    editors: "编辑器"
+    operating_systems: "操作系统"
+    machines: "设备"

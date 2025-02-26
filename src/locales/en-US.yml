@@ -4,7 +4,10 @@ commands:
   wakatime.auth:
     description: "Authorize Koishi to access your Wakatime account."
     messages:
+      must-be-direct: "This command must be used in a private message for safety."
+      already-authorized: "Already authorized: {username || 'Anonymous'}<br />To re-authorize, use `wakatime.auth.revoke` first."
       visit-link: "Visit the following link to authorize Koishi to access your Wakatime account."
+      expires-at: "The link will expire in {minutes} minutes."
   wakatime.auth.revoke:
     description: "Revoke your Wakatime authorization."
     messages:
@@ -25,7 +28,15 @@ wakatime:
     not-authorized: "Not authorized. (Use `wakatime.auth` to authorize)"
     authorization-expired: "Authorization expired."
     network-error: "Network error when {action}: {message}"
+    no-echarts: "ECharts is not enabled, so chart features are not available."
+
   action:
     getting-stats: "getting stats"
     revoking-authorization: "revoking authorization"
     fetching-user-data: "Fetching user data"
+
+  chart:
+    languages: "Programming Languages"
+    editors: "Editors"
+    operating_systems: "Operating Systems"
+    machines: "Machines"
