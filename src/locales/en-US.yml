@@ -17,6 +17,10 @@ commands:
     messages:
       ok: "Authorized: {username || 'Anonymous''}"
       expires-at: "Expires at: {date}"
+  wakatime.today:
+    description: "Get your Wakatime total today."
+    messages:
+      title: "{username || 'Anonymous'}'s Wakatime total today is {total}."
   wakatime.stats:
     description: "Get your Wakatime stats."
     messages:

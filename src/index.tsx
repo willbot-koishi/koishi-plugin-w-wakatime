@@ -111,6 +111,23 @@ export function apply(ctx: Context, config: Config) {
             </>
         })
 
+    ctx.command('wakatime.today')
+        .action(async ({ session }) => {
+            const state = await checkAuth(session)
+            const { username } = await fetchUserData({ session, state })
+
+            const { data: { data: statusBarData } } = await ctx
+                .http<Api.StatusBarData>('GET', `${Api.BASE_URL}/users/current/status_bar/today`, {
+                    responseType: 'json',
+                    headers: Api.getAuthHeaders(state)
+                })
+                .catch(catchNetworkError(session.text('wakatime.action.getting-today')))
+            
+            return <>
+                {session.text('.title', { username, total: statusBarData.grand_total.text })}<br />
+            </>
+        })
+
     ctx.command('wakatime.stats')
         .option('range', '-r <range:string>', { fallback: 'last_7_days' })
         .option('graph', '-g')

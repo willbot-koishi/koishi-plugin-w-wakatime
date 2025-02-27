@@ -17,6 +17,10 @@ commands:
     messages:
       ok: "已授权：{username || '匿名'}"
       expires-at: "有效期至：{date}"
+  wakatime.today:
+    description: "获取 Wakatime 今日总时长。"
+    messages:
+      title: "{username || '匿名'} 今日的 Wakatime 总时长为 {total}。"
   wakatime.stats:
     description: "获取 Wakatime 统计数据。"
     messages:

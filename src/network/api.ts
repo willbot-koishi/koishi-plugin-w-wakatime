@@ -17,16 +17,26 @@ export namespace Api {
         P extends 'second' ? { hours: number, minutes: number, seconds: number } :
         never
 
-    export type StatItem<P extends Precise> = {
+    export type SummaryItem<P extends Precise> = {
         name: string
         total_seconds: number
         percent: number
         digital: string
         text: string
     } & Duration<P>
+
+    export type SummaryEntries = {
+        categories: SummaryItem<'minute'>[]
+        projects: SummaryItem<'minute'>[]
+        languages: SummaryItem<'second'>[]
+        editors: SummaryItem<'second'>[]
+        operating_systems: SummaryItem<'second'>[]
+        dependencies: SummaryItem<'second'>[]
+        machines: SummaryItem<'second'>[]
+    }
     
     export type StatsData = {
-        data: {
+        data: SummaryEntries & {
             total_seconds: number
             total_seconds_including_other_language: number
             human_readable_total: string
@@ -35,14 +45,6 @@ export namespace Api {
             daily_average_including_other_language: number
             human_readable_daily_average: string
             human_readable_daily_average_including_other_language: string
-
-            categories: StatItem<'minute'>[]
-            projects: StatItem<'minute'>[]
-            languages: StatItem<'second'>[]
-            editors: StatItem<'second'>[]
-            operating_systems: StatItem<'second'>[]
-            dependencies: StatItem<'second'>[]
-            machines: StatItem<'second'>[]
 
             best_day: {
                 date: string
@@ -86,11 +88,13 @@ export namespace Api {
         Authorization: `Bearer ${state.token}`
     })
 
-    export const useFetchUserData = (ctx: Context) => async ({ session, state }: {
+    export const useFetchUserData = (ctx: Context) => async ({ session, state, force }: {
         session?: Session
         state?: AuthState
+        force?: boolean
     }): Promise<AuthUser> => {
         state ??= await useCheckAuth(ctx)(session)
+        if (state.user.username && ! force) return state.user
 
         const { data: { data: userData } } = await ctx.http<UserData>('GET', `${BASE_URL}/users/current`, {
             responseType: 'json',
@@ -148,6 +152,29 @@ export namespace Api {
             is_hireable: boolean
             created_at: string
             modified_at: string
+        }
+    }
+
+    export type StatusBarData = {
+        cached_at: string
+        has_team_features: boolean
+        data: SummaryEntries & {
+            grand_total: {
+                decimal: string
+                digital: string
+                hours: number
+                minutes: number
+                text: string
+                total_seconds: number
+            }
+
+            range: {
+                date: string
+                start: string
+                end: string
+                text: string
+                timezone: string
+            }
         }
     }
 }
